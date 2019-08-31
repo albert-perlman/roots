@@ -3,5 +3,6 @@
 *pyc
 *pyd
 
-./target/installer/opt
-./target/PyInstaller
+target/
+!target/roots.deb
+!target/roots/roots
