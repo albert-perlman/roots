@@ -1,0 +1,7 @@
+*.so
+*.so.*
+*pyc
+*pyd
+
+./target/installer/opt
+./target/PyInstaller
