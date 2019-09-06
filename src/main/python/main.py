@@ -17,6 +17,13 @@ class MainWindow(QMainWindow):
 
     self.appctxt = ApplicationContext()
 
+    self.screen = QDesktopWidget().screenGeometry()
+    self.maxWidth = self.screen.width()
+    self.maxheight = self.screen.height()
+
+    self.horizBarHeight = 25
+    self.vertBarWidth = 25
+
     #############
     #  WIDGETS  #
     #############
@@ -28,11 +35,24 @@ class MainWindow(QMainWindow):
 
     # IMAGE VIEW #
     self.imageViewer = QLabel()
-    self.initImages()
+    self.imageViewer.setAlignment(Qt.AlignCenter)
+    self.imageViewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+    self.initImages(os.getcwd()+'/src/main/resources/base/images/')
 
     #  SELECTION ARROWS  #
     self.bntPrev = QPushButton("<")
     self.btnNext = QPushButton(">")
+
+    # spacers #
+    spacerTop = QLabel("T O P")
+    spacerLeft = QLabel("L E F T")
+    spacerRight = QLabel("R I G H T")
+    spacerTop.setFixedSize(self.width(),self.horizBarHeight)
+    spacerLeft.setFixedSize(self.vertBarWidth,self.height())
+    spacerRight.setFixedSize(self.vertBarWidth,self.height())
+    spacerTop.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+    spacerLeft.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+    spacerRight.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
     #############
     #  LAYOUTS  #
@@ -67,6 +87,16 @@ class MainWindow(QMainWindow):
     LeftVLayout   = QVBoxLayout()
     RightVLayout  = QVBoxLayout()
 
+    # Top Horizontal Layout #
+    TopHLayout.addWidget(spacerTop)
+
+    # Left Vertical Layout #
+    LeftVLayout.addWidget(spacerLeft)
+
+    # Right Vertical Layout #
+    RightVLayout.addWidget(spacerRight)
+
+    # Bottom Horizontal Layout #
     BottomHLayout.addWidget(self.bntPrev)
     BottomHLayout.addWidget(self.btnNext)
 
@@ -85,7 +115,7 @@ class MainWindow(QMainWindow):
     ####################
     #  SIGNAL / SLOTS  #
     ####################
-    # self.resized.connect(self.SLOT_updateDisplaySize)
+    # self.resized.connect(self.SLOT_resized)
     self.bntPrev.clicked.connect(self.SLOT_viewPrev)
     self.btnNext.clicked.connect(self.SLOT_viewNext)
 
@@ -94,9 +124,10 @@ class MainWindow(QMainWindow):
     self.show()
 
   # initialize image gallery
-  def initImages(self, path='/home/mojo/devel/git/roots/src/main/resources/base/images/'):
+  def initImages(self, path):
 
     self.gallery = []
+    self.galleryScaled = []
     self.galleryIndex = 0
 
     # r=root, d=directories, f = files
@@ -104,6 +135,7 @@ class MainWindow(QMainWindow):
         for file in f:
           image = QPixmap( self.appctxt.get_resource(os.path.join(r, file)) )
           self.gallery.append(image)
+          self.galleryScaled.append(image)
           print(os.path.join(r, file))
 
     try:
@@ -113,8 +145,28 @@ class MainWindow(QMainWindow):
 
   # display image from gallery
   def displayImage(self):
-    self.updateDisplaySize()
-    self.imageViewer.setPixmap(self.gallery[self.galleryIndex])
+    self.scaleImage()
+    self.imageViewer.setPixmap(self.galleryScaled[self.galleryIndex])
+
+  # scale image to fit current window size
+  def scaleImage(self):
+
+    viewWidth = self.imageViewer.width()
+    viewHeight = self.imageViewer.height()
+
+    imgWidth = self.gallery[self.galleryIndex].width()
+    imgHeight = self.gallery[self.galleryIndex].height()
+
+    if (imgWidth > viewWidth):
+      imgWidth = viewWidth 
+    if (imgHeight > viewHeight):
+      imgHeight = viewHeight
+      
+    self.imageViewer.resize(viewWidth,viewHeight)
+
+    pixmap = self.gallery[self.galleryIndex]
+    image = pixmap.scaled(imgWidth, imgHeight, Qt.KeepAspectRatio, Qt.FastTransformation)
+    self.galleryScaled[self.galleryIndex] = image
 
   # SLOT: view previous gallery image
   def SLOT_viewPrev(self):
@@ -134,32 +186,15 @@ class MainWindow(QMainWindow):
       self.galleryIndex = 0
       self.displayImage()
 
-  # SLOT: update display size and scale image to fit
-  def updateDisplaySize(self):
-
-    screen = QDesktopWidget().screenGeometry()
-    maxWidth = screen.width()
-    maxheight = screen.height()
-
-    width = self.gallery[self.galleryIndex].width()
-    height = self.gallery[self.galleryIndex].height()
-
-    if (width >= maxWidth or height >= maxheight):
-      print("overmax")
-      width  = maxWidth - 128
-      height = maxheight - 128
-      self.resize(width,height)
-
-    pixmap = self.gallery[self.galleryIndex]
-    image = pixmap.scaled(width, height, Qt.KeepAspectRatio, Qt.FastTransformation)
-    self.gallery[self.galleryIndex] = image
-
   # critical dialog pop-up
   def SLOT_dialogCritical(self, s):
     dlg = QMessageBox(self)
     dlg.setText(s)
     dlg.setIcon(QMessageBox.Critical)
     dlg.show()
+
+  # def SLOT_resized(self):
+  #   self.resize(self.width(),self.height())
 
   # update main window title
   def updateTitle(self, str=""):
