@@ -37,7 +37,6 @@ class MainWindow(QMainWindow):
     self.imageViewer = QLabel()
     self.imageViewer.setAlignment(Qt.AlignCenter)
     self.imageViewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-    self.initImages(os.getcwd()+'/src/main/resources/base/images/')
 
     #  SELECTION ARROWS  #
     self.bntPrev = QPushButton("<")
@@ -119,11 +118,15 @@ class MainWindow(QMainWindow):
     self.bntPrev.clicked.connect(self.SLOT_viewPrev)
     self.btnNext.clicked.connect(self.SLOT_viewNext)
 
+    # initialize image gallery
+    imgPath = self.appctxt.get_resource('images/')
+    self.initImages(imgPath)
+
     self.updateTitle()
     self.displayImage()
     self.show()
 
-  # initialize image gallery
+  # import resouce images into gallery
   def initImages(self, path):
 
     self.gallery = []
