@@ -19,12 +19,17 @@ class MainWindow(QMainWindow):
 
     self.setMinimumSize(256,256)
 
+    self.horizBarHeight = 25
+    self.vertBarWidth = 25
+
+    # get user's screen dimensions
     self.screen = QDesktopWidget().screenGeometry()
     self.maxWidth = self.screen.width()
     self.maxheight = self.screen.height()
 
-    self.horizBarHeight = 25
-    self.vertBarWidth = 25
+    # get gallery groups
+    imgPath = self.appctxt.get_resource('images/')
+    self.getImageGroups(imgPath)
 
     #############
     #  WIDGETS  #
@@ -45,6 +50,10 @@ class MainWindow(QMainWindow):
     self.btnNext = QPushButton(">")
 
     # GROUP BUTTONS #
+    self.groupBtns = []
+    for group in self.groups:
+      self.groupBtns.append(QPushButton(group))
+
     self.btnGroup0 = QPushButton("All")
     self.btnGroup1 = QPushButton("Family")
     self.btnGroup2 = QPushButton("Kids")
@@ -97,12 +106,8 @@ class MainWindow(QMainWindow):
     RightVLayout  = QVBoxLayout()
 
     # Top Horizontal Layout #
-    TopHLayout.addWidget(self.btnGroup0)
-    TopHLayout.addWidget(self.btnGroup1)
-    TopHLayout.addWidget(self.btnGroup2)
-    TopHLayout.addWidget(self.btnGroup3)
-    TopHLayout.addWidget(self.btnGroup4)
-    TopHLayout.addWidget(self.btnGroup5)
+    for btn in self.groupBtns:
+      TopHLayout.addWidget(btn)
 
     # Left Vertical Layout #
     LeftVLayout.addWidget(spacerLeft)
@@ -133,12 +138,8 @@ class MainWindow(QMainWindow):
     self.bntPrev.clicked.connect(self.SLOT_viewPrev)
     self.btnNext.clicked.connect(self.SLOT_viewNext)
 
-    self.btnGroup0.clicked.connect(self.SLOT_viewGroup0)
-    self.btnGroup1.clicked.connect(self.SLOT_viewGroup1)
-    self.btnGroup2.clicked.connect(self.SLOT_viewGroup2)
-    self.btnGroup3.clicked.connect(self.SLOT_viewGroup3)
-    self.btnGroup4.clicked.connect(self.SLOT_viewGroup4)
-    self.btnGroup5.clicked.connect(self.SLOT_viewGroup5)
+    for btn in self.groupBtns:
+      btn.clicked.connect(self.SLOT_viewGroup)
 
     ####################
     #     GALLERIES    #
@@ -147,41 +148,35 @@ class MainWindow(QMainWindow):
     # display gallery #
     self.gallery = []
     self.galleryScaled = []
-    self.galleryIndex = 0
+    self.galleryIndex = 1
 
-    # gallery groups #
-    self.galleryFamily = []
-    self.galleryMomDad = []
-    self.galleryKids = []
-    self.galleryOther = []
-    self.galleryWallpapers = []
-    
-    # gallery groups scaled #
-    self.galleryFamilyScaled = []
-    self.galleryMomDadScaled = []
-    self.galleryKidsScaled = []
-    self.galleryOtherScaled = []
-    self.galleryWallpapersScaled = []
+    # initialize 2D list of galleries for each group
+    self.galleryGroups = []
+    self.galleryGroupsScaled = []
+    for group in self.groups:
+      self.galleryGroups.append([])
+      self.galleryGroupsScaled.append([])
 
-    imgPath = self.appctxt.get_resource('images/')
-    # self.initImageGroups(imgPath)
-    self.initImages(imgPath)
+    i = 0
+    for gallery in self.galleryGroups:
+      gallery.append(self.groups[i])
+      self.galleryGroupsScaled.append(self.groups[i])
+      i +=1
 
     self.updateTitle()
+    self.initImages(imgPath)
     self.displayImage()
     self.show()
 
-  def initImageGroups(self, path):
+  # get image groups from directories in 'main/resources/base/images/'
+  def getImageGroups(self, path):
 
-    self.groups = [[]]
+    self.groups = []
 
     # r=root, d=directories, f = files
     for r, d, f in os.walk(path):
       for dir in d:
         self.groups.append(dir)
-
-    for i in self.groups[0]:
-      print(str(self.groups[i]))
 
   # import resouce images into gallery
   def initImages(self, path):
@@ -190,45 +185,21 @@ class MainWindow(QMainWindow):
     for r, d, f in os.walk(path):
         for file in f:
           image = QPixmap( self.appctxt.get_resource(os.path.join(r, file)) )
-
           self.sortImage(r,image)
-          # print(str(r))
-          # self.gallery.append(image)
-          # self.galleryScaled.append(image)        
-          # print(os.path.join(r, file))
 
-    self.gallery = self.galleryWallpapers
-    self.galleryScaled = self.galleryWallpapersScaled
-
-    try:
-      self.imageViewer.setPixmap(self.gallery[0])
-    except:
-      self.SLOT_dialogCritical("no images loaded")
+    self.gallery = self.galleryGroups[0]
+    self.galleryScaled = self.galleryGroupsScaled[0]
 
   # sort image into a gallery group (based on containin directory name)
   def sortImage(self,dir,image):
 
-    group = dir[dir.rfind('/')+1:] # strip path down to last directory name
+    groupName = dir[dir.rfind('/')+1:] # strip path down to last directory name
 
-    if (group == "Family"):
-      self.galleryFamily.append(image)
-      self.galleryFamilyScaled.append(image)
+    for gallery in self.galleryGroups:
+      if (groupName == gallery[0]):
+        gallery.append(image)
 
-    elif (group == "Kids"):
-      self.galleryKids.append(image)
-      self.galleryKidsScaled.append(image)
-
-    elif (group == "Mom-n-Dad"):
-      self.galleryMomDad.append(image)
-      self.galleryMomDadScaled.append(image)
-
-    elif (group == "other"):
-      self.galleryOther.append(image)
-      self.galleryOtherScaled.append(image)
-
-    elif (group == "wallpapers"):
-      self.galleryWallpapers.append(image)
-      self.galleryWallpapersScaled.append(image)
+    self.galleryGroupsScaled = self.galleryGroups
 
   # display image from gallery
   def displayImage(self):
@@ -257,7 +228,7 @@ class MainWindow(QMainWindow):
 
   # SLOT: view previous gallery image
   def SLOT_viewPrev(self):
-    if (self.galleryIndex > 0):
+    if (self.galleryIndex > 1):
       self.galleryIndex -= 1
       self.displayImage()
     else:
@@ -270,48 +241,22 @@ class MainWindow(QMainWindow):
       self.galleryIndex += 1
       self.displayImage()
     else:
-      self.galleryIndex = 0
+      self.galleryIndex = 1
       self.displayImage()
 
   # SLOT: view gallery group All
-  def SLOT_viewGroup0(self):
-    self.galleryIndex = 0
-    # TODO: add galleryAll
+  def SLOT_viewGroup(self):
+    
+    groupName = self.sender().text()
+    self.galleryIndex = 1
+    
+    i = 0
+    for gallery in self.galleryGroups:
+      if (gallery[0] == groupName):
+        self.gallery = gallery
+        self.galleryScaled = self.galleryGroupsScaled[i]
+      i +=1
 
-  # SLOT: view gallery group 'Family'
-  def SLOT_viewGroup1(self):
-    self.galleryIndex = 0
-    self.gallery = self.galleryFamily
-    self.galleryScaled = self.galleryFamilyScaled
-    self.displayImage()
-
-  # SLOT: view gallery group 'Kids'
-  def SLOT_viewGroup2(self):
-    self.galleryIndex = 0
-    self.gallery = self.galleryKids
-    self.galleryScaled = self.galleryKidsScaled
-    self.displayImage()
-
-  # SLOT: view gallery group 'Mom-n-Dad'
-  def SLOT_viewGroup3(self):
-    self.galleryIndex = 0
-    self.gallery = self.galleryMomDad
-    self.galleryScaled = self.galleryMomDadScaled
-    self.displayImage()
-
-
-  # SLOT: view gallery group 'other'
-  def SLOT_viewGroup4(self):
-    self.galleryIndex = 0
-    self.gallery = self.galleryOther
-    self.galleryScaled = self.galleryOtherScaled
-    self.displayImage()
-
-  # SLOT: view gallery group 'wallpapers'
-  def SLOT_viewGroup5(self):
-    self.galleryIndex = 0
-    self.gallery = self.galleryWallpapers
-    self.galleryScaled = self.galleryWallpapersScaled
     self.displayImage()
 
   # critical dialog pop-up
