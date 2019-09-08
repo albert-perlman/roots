@@ -17,6 +17,8 @@ class MainWindow(QMainWindow):
 
     self.appctxt = ApplicationContext()
 
+    MainWidgetContainer = QWidget()
+
     self.setMinimumSize(256,256)
 
     self.horizBarHeight = 25
@@ -45,6 +47,11 @@ class MainWindow(QMainWindow):
     self.imageViewer.setAlignment(Qt.AlignCenter)
     self.imageViewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
+    # counter #
+    self.imageCounter = QLineEdit()
+    self.imageCounter.setFixedSize(75,40)
+    self.imageCounter.setAlignment(Qt.AlignCenter)
+
     # SELECTION ARROWS #
     self.bntPrev = QPushButton("<")
     self.btnNext = QPushButton(">")
@@ -53,13 +60,6 @@ class MainWindow(QMainWindow):
     self.groupBtns = []
     for group in self.groups:
       self.groupBtns.append(QPushButton(group))
-
-    self.btnGroup0 = QPushButton("All")
-    self.btnGroup1 = QPushButton("Family")
-    self.btnGroup2 = QPushButton("Kids")
-    self.btnGroup3 = QPushButton("Mom-n-Dad")
-    self.btnGroup4 = QPushButton("other")
-    self.btnGroup5 = QPushButton("wallpapers")
 
     # spacers #
     spacerTop = QLabel("T O P")
@@ -75,7 +75,6 @@ class MainWindow(QMainWindow):
     #############
     #  LAYOUTS  #
     #############
-
     #--------------------------------------------------#
     #                   MainVLayout      
     #              
@@ -117,8 +116,10 @@ class MainWindow(QMainWindow):
 
     # Bottom Horizontal Layout #
     BottomHLayout.addWidget(self.bntPrev)
+    BottomHLayout.addWidget(self.imageCounter)
     BottomHLayout.addWidget(self.btnNext)
 
+    # Center Horizontal
     MainHLayout.addLayout(LeftVLayout)
     MainHLayout.addWidget(self.imageViewer)
     MainHLayout.addLayout(RightVLayout)
@@ -127,7 +128,6 @@ class MainWindow(QMainWindow):
     MainVLayout.addLayout(MainHLayout)
     MainVLayout.addLayout(BottomHLayout)
 
-    MainWidgetContainer = QWidget()
     MainWidgetContainer.setLayout(MainVLayout)
     self.setCentralWidget(MainWidgetContainer)
 
@@ -144,28 +144,26 @@ class MainWindow(QMainWindow):
     ####################
     #     GALLERIES    #
     ####################
+    self.gallery = []       # gallery to be displayed
+    self.galleryScaled = [] # display gallery images scaled 
+    self.galleryIndex = 1   # display gallery image index
 
-    # display gallery #
-    self.gallery = []
-    self.galleryScaled = []
-    self.galleryIndex = 1
-
-    # initialize 2D list of galleries for each group
+    # initialize 2D list of galleries, sorted by group
     self.galleryGroups = []
     self.galleryGroupsScaled = []
     for group in self.groups:
       self.galleryGroups.append([])
       self.galleryGroupsScaled.append([])
 
-    i = 0
+    i = 0 # initialize [0] element of each gallery as its group's name
     for gallery in self.galleryGroups:
       gallery.append(self.groups[i])
-      self.galleryGroupsScaled.append(self.groups[i])
+      self.galleryGroupsScaled[i].append(self.groups[i])
       i +=1
 
-    self.updateTitle()
     self.initImages(imgPath)
     self.displayImage()
+    self.updateTitle()
     self.show()
 
   # get image groups from directories in 'main/resources/base/images/'
@@ -195,29 +193,35 @@ class MainWindow(QMainWindow):
 
     groupName = dir[dir.rfind('/')+1:] # strip path down to last directory name
 
+    i = 0
     for gallery in self.galleryGroups:
       if (groupName == gallery[0]):
-        gallery.append(image)
-
-    self.galleryGroupsScaled = self.galleryGroups
+        self.galleryGroupsScaled[i].append(image)
+        gallery.append(image) 
+      i +=1
 
   # display image from gallery
   def displayImage(self):
     self.scaleImage()
     self.imageViewer.setPixmap(self.galleryScaled[self.galleryIndex])
+    self.updateImageCounter()
+    self.setFocus()
 
   # scale image to fit current window size
   def scaleImage(self):
 
+    # get currennt size of image display
     viewWidth = self.imageViewer.width()
     viewHeight = self.imageViewer.height()
 
+    # get original size of image
     imgWidth = self.gallery[self.galleryIndex].width()
     imgHeight = self.gallery[self.galleryIndex].height()
 
-    if (imgWidth > viewWidth):
+    # get scaling dimensions
+    if (imgWidth != viewWidth):
       imgWidth = viewWidth 
-    if (imgHeight > viewHeight):
+    if (imgHeight != viewHeight):
       imgHeight = viewHeight
       
     self.imageViewer.resize(viewWidth,viewHeight)
@@ -225,6 +229,12 @@ class MainWindow(QMainWindow):
     pixmap = self.gallery[self.galleryIndex]
     image = pixmap.scaled(imgWidth, imgHeight, Qt.KeepAspectRatio, Qt.FastTransformation)
     self.galleryScaled[self.galleryIndex] = image
+
+  # update image counter display
+  def updateImageCounter(self):
+    idx = str( self.galleryIndex )
+    max = str( len(self.gallery)-1 )
+    self.imageCounter.setText(idx + '/' + max)
 
   # SLOT: view previous gallery image
   def SLOT_viewPrev(self):
@@ -260,7 +270,7 @@ class MainWindow(QMainWindow):
     self.displayImage()
 
   # critical dialog pop-up
-  def SLOT_dialogCritical(self, s):
+  def dialogCritical(self, s):
     dlg = QMessageBox(self)
     dlg.setText(s)
     dlg.setIcon(QMessageBox.Critical)
