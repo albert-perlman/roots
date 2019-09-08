@@ -273,6 +273,17 @@ class MainWindow(QMainWindow):
   def updateTitle(self, str=""):
     self.setWindowTitle(""+ str)
 
+  # capture arrow key press to navigate gallery
+  def keyPressEvent(self, event):
+
+    keyCode = event.key()
+
+    if (16777234 == keyCode):
+      self.SLOT_viewPrev()
+
+    elif (16777236 == keyCode):
+      self.SLOT_viewNext()
+
   # # overload to emit signal
   # def resizeEvent(self, event):
   #   self.resized.emit()
