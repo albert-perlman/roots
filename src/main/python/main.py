@@ -251,22 +251,21 @@ class MainWindow(QMainWindow):
   # update preview pane display images
   def updatePreview(self):
 
-    previewGallery = self.PreviewGallery()
+    previewGallery = self.getPreviewGallery()
+    previewSize = len(previewGallery)
 
     idxMin = self.galleryIndex-int(self.numPreview/2)
     idxMax = self.galleryIndex+int(self.numPreview/2)+1
-    print(str(idxMin))
-    print(str(idxMax))
 
     i = 0
     # self.clearLayout(self.previewLayout)
     for idx in range(idxMin,idxMax):
-      if (idx < 0):
-        idx = len(previewGallery)+idx-1
-      if (idx > len(self.gallery)):
-        idx = len(previewGallery)-idx
+      if (idx <= 0):        
+        idx = previewSize+idx-1
+      elif (idx >= previewSize):
+        idx = idx-previewSize+1
 
-      image = previewGallery[idx-1]
+      image = previewGallery[idx]
       self.previewBtns[i].setText(str(idx))
       self.previewBtns[i].setIcon(QIcon(image))
       self.previewBtns[i].setIconSize(image.rect().size())
@@ -274,9 +273,10 @@ class MainWindow(QMainWindow):
       i +=1
 
   # create image preview gallery
-  def PreviewGallery(self):
+  def getPreviewGallery(self):
 
     previewGallery = []
+    previewGallery.append("preview")
     for i in range(1,len(self.gallery)):
       image = self.gallery[i]
       image = image.scaled(self.previewBtns[0].size().width(), self.previewBtns[0].size().height(), Qt.KeepAspectRatio, Qt.FastTransformation)
