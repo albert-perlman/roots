@@ -68,10 +68,11 @@ class MainWindow(QMainWindow):
 
     # PREVIEW PANE #
     self.previewBtns = []
-    self.numPreview = 7
+    self.numPreview = 9
     for i in range(0,self.numPreview):
       self.previewBtns.append(QPushButton())
-      self.previewBtns[i].setMinimumSize(150,150)
+      self.previewBtns[i].setMinimumSize(100,100)
+      self.previewBtns[i].setStyleSheet("color:transparent; background-color:transparent; border:0px;")
       self.previewBtns[i].clicked.connect(self.SLOT_previewClicked)
 
     #############
