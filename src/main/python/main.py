@@ -9,6 +9,8 @@ from PyQt5.QtMultimedia  import *
 import os
 import sys
 
+import stylesheet
+
 class MainWindow(QMainWindow):
   # resized = pyqtSignal()
   
@@ -16,6 +18,8 @@ class MainWindow(QMainWindow):
     super(MainWindow, self).__init__(*args, **kwargs)
 
     self.appctxt = ApplicationContext()
+
+    self.setStyleSheet(stylesheet.StyleSheet.css())
 
     MainWidgetContainer = QWidget()
 
