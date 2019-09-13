@@ -9,7 +9,7 @@ from PyQt5.QtMultimedia  import *
 import os
 import sys
 
-import stylesheet
+from PyStyle import *
 
 class MainWindow(QMainWindow):
   resized = pyqtSignal()
@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
 
     self.appctxt = ApplicationContext()
 
-    self.setStyleSheet(stylesheet.StyleSheet.css())
+    self.setStyleSheet(StyleSheet.css())
 
     MainWidgetContainer = QWidget()
 
@@ -70,7 +70,7 @@ class MainWindow(QMainWindow):
     # PREVIEW PANE # --> goto createPreviewBtns()
     self.previewBtns = []
     self.minPreviewSize = 50
-    self.navBtnWidth = 25
+    self.navBtnWidth = 35
 
     #############
     #  LAYOUTS  #
@@ -322,6 +322,8 @@ class MainWindow(QMainWindow):
     # SELECTION ARROWS #
     self.viewPrevBtn = QPushButton("<")
     self.viewNextBtn = QPushButton(">")
+    self.viewPrevBtn.setStyleSheet(StyleSheet.css("navBtn"))
+    self.viewNextBtn.setStyleSheet(StyleSheet.css("navBtn"))
     self.viewPrevBtn.setFixedWidth(self.navBtnWidth)
     self.viewNextBtn.setFixedWidth(self.navBtnWidth)
     self.viewPrevBtn.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Minimum)
