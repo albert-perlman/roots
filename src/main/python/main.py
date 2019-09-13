@@ -12,7 +12,7 @@ import sys
 import stylesheet
 
 class MainWindow(QMainWindow):
-  # resized = pyqtSignal()
+  resized = pyqtSignal()
   
   def __init__(self, *args, **kwargs):
     super(MainWindow, self).__init__(*args, **kwargs)
@@ -23,11 +23,11 @@ class MainWindow(QMainWindow):
 
     MainWidgetContainer = QWidget()
 
+    self.showing = False
+
+    # Main Window sizing
     self.setMinimumSize(256,256)
     self.resize(1000,750)
-
-    self.horizBarHeight = 25
-    self.vertBarWidth = 25
 
     # get user's screen dimensions
     self.screen = QDesktopWidget().screenGeometry()
@@ -59,37 +59,18 @@ class MainWindow(QMainWindow):
     self.imageCounter.setAlignment(Qt.AlignCenter)
 
     # SELECTION ARROWS #
-    self.bntPrev = QPushButton("<")
-    self.btnNext = QPushButton(">")
+    self.viewPrevBtn = QPushButton("<")
+    self.viewNextBtn = QPushButton(">")
 
     # GROUP BUTTONS #
     self.groupBtns = []
     for group in self.groups:
       self.groupBtns.append(QPushButton(group))
 
-    # PREVIEW PANE #
-    self.numPreview = 9
+    # PREVIEW PANE # --> goto createPreviewBtns()
     self.previewBtns = []
-    previewSizePolicy = QSizePolicy()
-    previewSizePolicy.setHorizontalStretch(1)
-    previewSizePolicy.setVerticalStretch(1)
-    previewSizePolicy.setHorizontalPolicy(QSizePolicy.Expanding)
-    previewSizePolicy.setVerticalPolicy(QSizePolicy.Expanding)
-    for i in range(0,self.numPreview):
-      self.previewBtns.append(QToolButton())
-      self.previewBtns[i].setMinimumSize(50,50)
-      self.previewBtns[i].setMaximumSize(100,100)
-      self.previewBtns[i].setSizePolicy(previewSizePolicy)
-      self.previewBtns[i].setStyleSheet("color:transparent; background-color:transparent; border:0px;")
-      self.previewBtns[i].clicked.connect(self.SLOT_previewClicked)
-
-    # center preview #
-    previewSizePolicy.setHorizontalStretch(2)
-    previewSizePolicy.setVerticalStretch(2)
-    self.previewBtns[self.numPreview//2].setMinimumSize(100,100)
-    self.previewBtns[self.numPreview//2].setMaximumSize(200,200)
-    self.previewBtns[self.numPreview//2].setSizePolicy(previewSizePolicy)
-    # self.previewBtns[self.numPreview//2].setStyleSheet("color:transparent; background-color:transparent; border:3px ridge black;")
+    self.minPreviewSize = 50
+    self.navBtnWidth = 25
 
     #############
     #  LAYOUTS  #
@@ -121,28 +102,24 @@ class MainWindow(QMainWindow):
     MainHLayout   = QHBoxLayout()
     TopHLayout    = QHBoxLayout()
     BottomHLayout = QHBoxLayout()
-    PreviewLayout = QHBoxLayout()
     LeftVLayout   = QVBoxLayout()
     RightVLayout  = QVBoxLayout()
+
+    self.PreviewLayout = QHBoxLayout()
+    # self.PreviewLayout.setSpacing(1)
 
     # Top Horizontal Layout #
     for btn in self.groupBtns:
       TopHLayout.addWidget(btn)
 
     # Horizontal Preview Layout #
-    for btn in self.previewBtns:
-      PreviewLayout.addWidget(btn)
 
     # Left Vertical Layout #
-    # self.LeftVLayout.addWidget(self.previewPane)
 
     # Right Vertical Layout #
-    # RightVLayout.addWidget(spacerRight)
 
     # Bottom Horizontal Layout #
-    BottomHLayout.addWidget(self.bntPrev)
     BottomHLayout.addWidget(self.imageCounter)
-    BottomHLayout.addWidget(self.btnNext)
 
     # image viewer layouts
     viewerHLayout = QHBoxLayout()
@@ -158,7 +135,7 @@ class MainWindow(QMainWindow):
     MainHLayout.addLayout(viewerVLayout)
     MainVLayout.addLayout(TopHLayout)
     MainVLayout.addLayout(MainHLayout)
-    MainVLayout.addLayout(PreviewLayout)
+    MainVLayout.addLayout(self.PreviewLayout)
 
     MainWidgetContainer.setLayout(MainVLayout)
     self.setCentralWidget(MainWidgetContainer)
@@ -166,9 +143,7 @@ class MainWindow(QMainWindow):
     ####################
     #  SIGNAL / SLOTS  #
     ####################
-    # self.resized.connect(self.SLOT_resized)
-    self.bntPrev.clicked.connect(self.SLOT_viewPrev)
-    self.btnNext.clicked.connect(self.SLOT_viewNext)
+    self.resized.connect(self.SLOT_resized)
 
     for btn in self.groupBtns:
       btn.clicked.connect(self.SLOT_viewGroup)
@@ -176,9 +151,9 @@ class MainWindow(QMainWindow):
     ####################
     #     GALLERIES    #
     ####################
-    self.gallery = []       # gallery to be displayed
+    self.gallery = []       # gallery of images to be displayed
     self.galleryScaled = [] # display gallery images scaled 
-    self.galleryIndex = 1   # display gallery image index
+    self.galleryIndex = 1   # display gallery index for image being viewed
 
     # initialize 2D list of galleries, sorted by group
     self.galleryGroups = []
@@ -193,15 +168,20 @@ class MainWindow(QMainWindow):
       self.galleryGroupsScaled[i].append(self.groups[i])
       i +=1
 
-    self.initImages(imgPath)
-    self.displayImage()
+    ####################
+    #     START-UP     #
+    ####################
+    self.initImages(imgPath)  # import resource images into gallery groups
+    self.updatePreviewPane()  # create Preview buttons
     self.updateTitle()
     self.show()
+    self.showing = True
 
   # get image groups from directories in 'main/resources/base/images/'
   def getGalleryGroups(self, path):
 
     self.groups = []
+    self.groups.append("All")
 
     # r=root, d=directories, f = files
     for r, d, f in os.walk(path):
@@ -225,11 +205,15 @@ class MainWindow(QMainWindow):
 
     groupName = dir[dir.rfind('/')+1:] # strip path down to last directory name
 
+    # append all images to "All" gallery
+    self.galleryGroups[0].append(image)
+    self.galleryGroupsScaled[0].append(image)
+
     i = 0
     for gallery in self.galleryGroups:
       if (groupName == gallery[0]):
+        gallery.append(image)
         self.galleryGroupsScaled[i].append(image)
-        gallery.append(image) 
       i +=1
 
   # display image from gallery
@@ -237,7 +221,7 @@ class MainWindow(QMainWindow):
     self.scaleImage()
     self.imageViewer.setPixmap(self.galleryScaled[self.galleryIndex])
     self.updateImageCounter()
-    self.updatePreview()
+    self.updatePreviewImages()
     self.setFocus()
 
   # scale image to fit current window size
@@ -269,8 +253,25 @@ class MainWindow(QMainWindow):
     max = str( len(self.gallery)-1 )
     self.imageCounter.setText(idx + ' / ' + max)
 
+  # update preview pane size and images
+  def updatePreviewPane(self):
+
+    # display as many previews as there are images in gallery
+    self.numPreview = len(self.gallery)-1
+
+    # if gallery is too large to display in preview pane, find maximum images which can be displayed
+    while ( (self.numPreview*self.minPreviewSize) >= ( self.width()-(self.navBtnWidth*2)-(self.minPreviewSize*4) ) ):
+      self.numPreview -=1
+
+    # ensure odd number of images in preview pane
+    if (self.numPreview % 2 == 0):
+      self.numPreview +=1
+
+    self.createPreviewBtns()
+    self.displayImage()
+
   # update preview pane display images
-  def updatePreview(self):
+  def updatePreviewImages(self):
 
     previewGallery = self.getPreviewGallery()
     previewSize = len(previewGallery)
@@ -291,7 +292,7 @@ class MainWindow(QMainWindow):
       self.previewBtns[i].setIconSize(image.rect().size())
       i +=1
 
-  # create image preview gallery
+  # scale images for preview gallery
   def getPreviewGallery(self):
 
     previewGallery = []
@@ -309,6 +310,48 @@ class MainWindow(QMainWindow):
       previewGallery.append(image)
 
     return previewGallery
+
+  # create preview pane buttons
+  def createPreviewBtns(self):
+    self.clearLayout(self.PreviewLayout)
+
+    # SELECTION ARROWS #
+    self.viewPrevBtn = QPushButton("<")
+    self.viewNextBtn = QPushButton(">")
+    self.viewPrevBtn.setFixedWidth(self.navBtnWidth)
+    self.viewNextBtn.setFixedWidth(self.navBtnWidth)
+    self.viewPrevBtn.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Minimum)
+    self.viewNextBtn.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Minimum)
+    self.viewPrevBtn.clicked.connect(self.SLOT_viewPrev)
+    self.viewNextBtn.clicked.connect(self.SLOT_viewNext)
+    self.PreviewLayout.addWidget(self.viewPrevBtn)
+    
+    maxSize = self.width()//15
+
+    # PREVIEW IMAGES #
+    self.previewBtns.clear()
+    previewSizePolicy = QSizePolicy()
+    previewSizePolicy.setHorizontalStretch(1)
+    previewSizePolicy.setVerticalStretch(1)
+    previewSizePolicy.setHorizontalPolicy(QSizePolicy.Expanding)
+    previewSizePolicy.setVerticalPolicy(QSizePolicy.Expanding)
+    for i in range(0,self.numPreview):
+      self.previewBtns.append(QToolButton())
+      self.previewBtns[i].setMinimumSize(self.minPreviewSize,self.minPreviewSize)
+      self.previewBtns[i].setMaximumSize(maxSize,maxSize)
+      self.previewBtns[i].setSizePolicy(previewSizePolicy)
+      self.previewBtns[i].setStyleSheet("color:transparent; background-color:transparent; border:0px;")
+      self.previewBtns[i].clicked.connect(self.SLOT_previewClicked)
+      self.PreviewLayout.addWidget(self.previewBtns[i])
+
+    # center preview #
+    previewSizePolicy.setHorizontalStretch(2)
+    previewSizePolicy.setVerticalStretch(2)
+    self.previewBtns[self.numPreview//2].setMinimumSize(self.minPreviewSize*2,self.minPreviewSize*2)
+    self.previewBtns[self.numPreview//2].setMaximumSize(maxSize*2,maxSize*2)
+    self.previewBtns[self.numPreview//2].setSizePolicy(previewSizePolicy)
+
+    self.PreviewLayout.addWidget(self.viewNextBtn)
 
   # SLOT: view previous gallery image
   def SLOT_viewPrev(self):
@@ -341,8 +384,7 @@ class MainWindow(QMainWindow):
         self.galleryScaled = self.galleryGroupsScaled[i]
       i +=1
 
-    self.displayImage()
-    self.updatePreview()
+    self.updatePreviewPane()
 
   # SLOT: display image selected from preview
   def SLOT_previewClicked(self):
@@ -352,6 +394,11 @@ class MainWindow(QMainWindow):
       self.galleryIndex = len(self.gallery)-1
     self.displayImage()
 
+  # SLOT: Main Window has been resized
+  def SLOT_resized(self):
+    if (self.showing):
+      self.updatePreviewPane()
+
   # critical dialog pop-up
   def dialogCritical(self, s):
     dlg = QMessageBox(self)
@@ -359,19 +406,16 @@ class MainWindow(QMainWindow):
     dlg.setIcon(QMessageBox.Critical)
     dlg.show()
 
-  # def SLOT_resized(self):
-  #   self.resize(self.width(),self.height())
-
-  # # delete all widgets in a layout
-  # def clearLayout(self, layout):
-  #   while layout.count():
-  #     child = layout.takeAt(0)
-  #     if child.widget():
-  #       child.widget().deleteLater()
+  # delete all widgets in a layout
+  def clearLayout(self, layout):
+    while layout.count():
+      child = layout.takeAt(0)
+      if child.widget():
+        child.widget().deleteLater()
 
   # update main window title
   def updateTitle(self, str=""):
-    self.setWindowTitle(""+ str)
+    self.setWindowTitle("MOJO ALONSO's PHOTO VIEWER"+ str)
 
   # capture arrow key press to navigate gallery
   def keyPressEvent(self, event):
@@ -384,10 +428,10 @@ class MainWindow(QMainWindow):
     elif (16777236 == keyCode):
       self.SLOT_viewNext()
 
-  # # overload to emit signal
-  # def resizeEvent(self, event):
-  #   self.resized.emit()
-  #   return super(MainWindow, self).resizeEvent(event)
+  # overload Main Window resizeEvent to emit signal
+  def resizeEvent(self, event):
+    self.resized.emit()
+    return super(MainWindow, self).resizeEvent(event)
 
 if __name__ == '__main__':
     appctxt = ApplicationContext()       # 1. Instantiate ApplicationContext
