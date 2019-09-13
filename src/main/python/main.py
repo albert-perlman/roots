@@ -151,12 +151,12 @@ class MainWindow(QMainWindow):
     ####################
     #     GALLERIES    #
     ####################
-    self.gallery = []       # gallery of images to be displayed
+    self.gallery       = [] # gallery of images to be displayed
     self.galleryScaled = [] # display gallery images scaled 
-    self.galleryIndex = 1   # display gallery index for image being viewed
+    self.galleryIndex  = 1  # display gallery index for image being viewed
 
     # initialize 2D list of galleries, sorted by group
-    self.galleryGroups = []
+    self.galleryGroups       = []
     self.galleryGroupsScaled = []
     for group in self.groups:
       self.galleryGroups.append([])
@@ -172,7 +172,7 @@ class MainWindow(QMainWindow):
     #     START-UP     #
     ####################
     self.initImages(imgPath)  # import resource images into gallery groups
-    self.updatePreviewPane()  # create Preview buttons
+    self.updatePreviewPane()  # create Preview Pane
     self.updateTitle()
     self.show()
     self.showing = True
@@ -315,6 +315,10 @@ class MainWindow(QMainWindow):
   def createPreviewBtns(self):
     self.clearLayout(self.PreviewLayout)
 
+    # spacers #
+    spacerL = QWidget()
+    spacerR = QWidget()
+
     # SELECTION ARROWS #
     self.viewPrevBtn = QPushButton("<")
     self.viewNextBtn = QPushButton(">")
@@ -325,6 +329,7 @@ class MainWindow(QMainWindow):
     self.viewPrevBtn.clicked.connect(self.SLOT_viewPrev)
     self.viewNextBtn.clicked.connect(self.SLOT_viewNext)
     self.PreviewLayout.addWidget(self.viewPrevBtn)
+    self.PreviewLayout.addWidget(spacerL)
     
     maxSize = self.width()//15
 
@@ -351,6 +356,7 @@ class MainWindow(QMainWindow):
     self.previewBtns[self.numPreview//2].setMaximumSize(maxSize*2,maxSize*2)
     self.previewBtns[self.numPreview//2].setSizePolicy(previewSizePolicy)
 
+    self.PreviewLayout.addWidget(spacerR)
     self.PreviewLayout.addWidget(self.viewNextBtn)
 
   # SLOT: view previous gallery image
