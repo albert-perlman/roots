@@ -1,6 +1,6 @@
 {
     "app_name": "roots",
-    "author": "Mojo",
+    "author": "Mojo Alonso",
     "main_module": "src/main/python/main.py",
-    "version": "0.0.0"
+    "version": "0.0.1"
 }
