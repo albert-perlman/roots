@@ -9,6 +9,8 @@ from PyQt5.QtMultimedia  import *
 import os
 import sys
 
+from random import shuffle
+
 from PyStyle import *
 
 class MainWindow(QMainWindow):
@@ -200,6 +202,11 @@ class MainWindow(QMainWindow):
     self.gallery = self.galleryGroups[0]
     self.galleryScaled = self.galleryGroupsScaled[0]
 
+    # randomize the order of images in the "All" gallery
+    tmp = self.galleryGroups[0][1:]
+    shuffle(tmp)
+    self.galleryGroups[0][1:] = tmp
+
   # sort image into a gallery group (based on containin directory name)
   def sortImage(self,dir,image):
 
@@ -260,7 +267,7 @@ class MainWindow(QMainWindow):
     self.numPreview = len(self.gallery)-1
 
     # if gallery is too large to display in preview pane, find maximum images which can be displayed
-    while ( (self.numPreview*self.minPreviewSize) >= ( self.width()-(self.navBtnWidth*2)-(self.minPreviewSize*4) ) ):
+    while ( (self.numPreview*self.minPreviewSize) >= ( self.width()-(self.navBtnWidth*2)-(self.minPreviewSize*8) ) ):
       self.numPreview -=1
 
     # ensure odd number of images in preview pane
