@@ -185,7 +185,7 @@ class MainWindow(QMainWindow):
 
     # r=root, d=directories, f = files
     for r, d, f in os.walk(path):
-      for dir in d:
+      for dir in sorted(d):
         self.groups.append(dir)
 
   # import resouce images into gallery
