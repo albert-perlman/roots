@@ -19,12 +19,11 @@ class MainWindow(QMainWindow):
   def __init__(self, *args, **kwargs):
     super(MainWindow, self).__init__(*args, **kwargs)
 
+    self.showing = False
     self.appctxt = ApplicationContext()
 
     MainWidgetContainer = QWidget()
     MainWidgetContainer.setStyleSheet(StyleSheet.css("window"))
-
-    self.showing = False
 
     # get user's screen dimensions
     self.screen = QDesktopWidget().screenGeometry()
@@ -182,6 +181,7 @@ class MainWindow(QMainWindow):
     self.styleGroupBtns("All")
     self.updateTitle()
     self.show()
+    self.displayImage()
     self.showing = True
 
   # get image groups from directories in 'main/resources/base/images/'
@@ -418,7 +418,7 @@ class MainWindow(QMainWindow):
       i +=1
 
     self.styleGroupBtns(groupName)
-    self.updatePreviewPane()
+    self.displayImage()
 
   # SLOT: display image selected from preview
   def SLOT_previewClicked(self):
@@ -449,7 +449,7 @@ class MainWindow(QMainWindow):
 
   # update main window title
   def updateTitle(self, str=""):
-    self.setWindowTitle("MOJO ALONSO's PHOTO VIEWER"+ str)
+    self.setWindowTitle("Perlman Family Photo Album"+ str)
 
   # capture arrow key press to navigate gallery
   def keyPressEvent(self, event):
