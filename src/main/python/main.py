@@ -211,7 +211,9 @@ class MainWindow(QMainWindow):
   # sort image into a gallery group (based on containin directory name)
   def sortImage(self,dir,image):
 
-    groupName = dir[dir.rfind('/')+1:] # strip path down to last directory name
+   groupName = dir[dir.rfind('/')+1:] # strip path down to last directory name
+   if (dir.rfind('\\')):
+    groupName = dir[dir.rfind('\\')+1:] # . . . fucking windows
 
     # append all images to "All" gallery
     self.galleryGroups[0].append(image)
