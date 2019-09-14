@@ -65,3 +65,39 @@ class StyleSheet(object):
         "}"
 
         return QPushButton
+
+    elif ("group" == widget):
+
+        QPushButton = \
+        "QPushButton {" + \
+        "font-size: 16px; font-weight:bold;" + \
+        "color:rgb(255,255,255);" + \
+        "background-color:rgb(50,50,50);" + \
+        "border:3px solid transparent;" + \
+        "border-radius:10px;" + \
+        "padding:5px;" + \
+        "}" + \
+        "QPushButton::hover{" + \
+        "background-color:rgb(60,60,60);" + \
+        "}"
+
+        return QPushButton
+
+
+    elif ("groupActive" == widget):
+
+        QPushButton = \
+        "QPushButton {" + \
+        "font-size: 16px; font-weight:bold;" + \
+        "color:rgb(255,255,255);" + \
+        "background-color:rgb(50,50,50);" + \
+        "border:3px solid transparent;" + \
+        "border-bottom:3px solid white;" + \
+        "border-radius:0px;" + \
+        "padding:5px;" + \
+        "}" + \
+        "QPushButton::hover{" + \
+        "background-color:rgb(60,60,60);" + \
+        "}"
+
+        return QPushButton

@@ -175,6 +175,7 @@ class MainWindow(QMainWindow):
     ####################
     self.initImages(imgPath)  # import resource images into gallery groups
     self.updatePreviewPane()  # create Preview Pane
+    self.groupBtns[0].setStyleSheet(StyleSheet.css("groupActive"))
     self.updateTitle()
     self.show()
     self.showing = True
@@ -391,8 +392,15 @@ class MainWindow(QMainWindow):
     
     groupName = self.sender().text()
     self.galleryIndex = 1
+
+    # style button for active group
+    for btn in self.groupBtns:
+      if (btn.text() == groupName):
+        btn.setStyleSheet(StyleSheet.css("groupActive"))
+      else :
+        btn.setStyleSheet(StyleSheet.css("group"))
     
-    i = 0
+    i = 0 # change display gallery
     for gallery in self.galleryGroups:
       if (gallery[0] == groupName):
         self.gallery = gallery
