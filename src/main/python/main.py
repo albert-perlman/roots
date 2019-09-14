@@ -21,20 +21,19 @@ class MainWindow(QMainWindow):
 
     self.appctxt = ApplicationContext()
 
-    self.setStyleSheet(StyleSheet.css())
-
     MainWidgetContainer = QWidget()
+    MainWidgetContainer.setStyleSheet(StyleSheet.css("window"))
 
     self.showing = False
-
-    # Main Window sizing
-    self.setMinimumSize(256,256)
-    self.resize(1000,750)
 
     # get user's screen dimensions
     self.screen = QDesktopWidget().screenGeometry()
     self.maxWidth = self.screen.width()
-    self.maxheight = self.screen.height()
+    self.maxHeight = self.screen.height()
+
+    # Main Window sizing
+    self.setMinimumSize(self.maxWidth//1.75,self.maxHeight//1.75)
+    self.resize(self.maxWidth//1.5,self.maxHeight//1.5)
 
     # get gallery groups
     imgPath = self.appctxt.get_resource('images/')
@@ -47,22 +46,20 @@ class MainWindow(QMainWindow):
     # status bar #
     self.status = QStatusBar()
     self.status.setStyleSheet("color:rgb(255,255,255);")    
-    self.setStatusBar(self.status)
+    # self.setStatusBar(self.status)
 
     # IMAGE VIEW #
     self.imageViewer = QLabel()
+    self.imageViewer.setStyleSheet(StyleSheet.css("image"))
     self.imageViewer.setAlignment(Qt.AlignCenter)
     self.imageViewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     # counter #
     self.imageCounter = QLineEdit()
+    self.imageCounter.setStyleSheet(StyleSheet.css("counter"))
     self.imageCounter.setReadOnly(True)
-    self.imageCounter.setFixedSize(75,40)
+    self.imageCounter.setFixedSize(125,40)
     self.imageCounter.setAlignment(Qt.AlignCenter)
-
-    # SELECTION ARROWS #
-    self.viewPrevBtn = QPushButton("<")
-    self.viewNextBtn = QPushButton(">")
 
     # GROUP BUTTONS #
     self.groupBtns = []
@@ -73,6 +70,9 @@ class MainWindow(QMainWindow):
     self.previewBtns = []
     self.minPreviewSize = 50
     self.navBtnWidth = 35
+    self.maxNumPreview = 13
+    # self.previewPane = QWidget()
+    # self.previewPane.setStyleSheet(StyleSheet.css("preview"))
 
     #############
     #  LAYOUTS  #
@@ -107,7 +107,10 @@ class MainWindow(QMainWindow):
     LeftVLayout   = QVBoxLayout()
     RightVLayout  = QVBoxLayout()
 
+    # Preview Pane # (use widget for styling)
     self.PreviewLayout = QHBoxLayout()
+    # self.previewPane.setLayout(self.PreviewLayout)
+
     # self.PreviewLayout.setSpacing(1)
 
     # Top Horizontal Layout #
@@ -138,6 +141,7 @@ class MainWindow(QMainWindow):
     MainVLayout.addLayout(TopHLayout)
     MainVLayout.addLayout(MainHLayout)
     MainVLayout.addLayout(self.PreviewLayout)
+    # MainVLayout.addWidget(self.previewPane)
 
     MainWidgetContainer.setLayout(MainVLayout)
     self.setCentralWidget(MainWidgetContainer)
@@ -175,7 +179,7 @@ class MainWindow(QMainWindow):
     ####################
     self.initImages(imgPath)  # import resource images into gallery groups
     self.updatePreviewPane()  # create Preview Pane
-    self.groupBtns[0].setStyleSheet(StyleSheet.css("groupActive"))
+    self.styleGroupBtns("All")
     self.updateTitle()
     self.show()
     self.showing = True
@@ -211,9 +215,9 @@ class MainWindow(QMainWindow):
   # sort image into a gallery group (based on containin directory name)
   def sortImage(self,dir,image):
 
-   groupName = dir[dir.rfind('/')+1:] # strip path down to last directory name
-   if (dir.rfind('\\')):
-    groupName = dir[dir.rfind('\\')+1:] # . . . fucking windows
+    groupName = dir[dir.rfind('/')+1:] # strip path down to last directory name
+    if (groupName.find('\\') != -1):
+      groupName = dir[dir.rfind('\\')+1:] # . . . fucking windows
 
     # append all images to "All" gallery
     self.galleryGroups[0].append(image)
@@ -276,6 +280,9 @@ class MainWindow(QMainWindow):
     # ensure odd number of images in preview pane
     if (self.numPreview % 2 == 0):
       self.numPreview +=1
+
+    if (self.numPreview > self.maxNumPreview):
+      self.numPreview = self.maxNumPreview
 
     self.createPreviewBtns()
     self.displayImage()
@@ -371,6 +378,14 @@ class MainWindow(QMainWindow):
     self.PreviewLayout.addWidget(spacerR)
     self.PreviewLayout.addWidget(self.viewNextBtn)
 
+  # style groups buttons
+  def styleGroupBtns(self, group):
+    for btn in self.groupBtns:
+      if (btn.text() == group):
+        btn.setStyleSheet(StyleSheet.css("groupActive"))
+      else :
+        btn.setStyleSheet(StyleSheet.css("group"))
+
   # SLOT: view previous gallery image
   def SLOT_viewPrev(self):
     if (self.galleryIndex > 1):
@@ -394,13 +409,6 @@ class MainWindow(QMainWindow):
     
     groupName = self.sender().text()
     self.galleryIndex = 1
-
-    # style button for active group
-    for btn in self.groupBtns:
-      if (btn.text() == groupName):
-        btn.setStyleSheet(StyleSheet.css("groupActive"))
-      else :
-        btn.setStyleSheet(StyleSheet.css("group"))
     
     i = 0 # change display gallery
     for gallery in self.galleryGroups:
@@ -409,6 +417,7 @@ class MainWindow(QMainWindow):
         self.galleryScaled = self.galleryGroupsScaled[i]
       i +=1
 
+    self.styleGroupBtns(groupName)
     self.updatePreviewPane()
 
   # SLOT: display image selected from preview

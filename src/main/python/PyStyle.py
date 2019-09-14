@@ -7,97 +7,114 @@ class StyleSheet(object):
     
   def css(widget=None):
 
-    if (not widget):
+    if ("window" == widget):
 
         MainWindow = \
-        "QMainWindow {" + \
         "color:rgb(255,255,255);" + \
-        "background-color:rgb(50,50,50);" + \
-        "}"
+        "background-color:" + \
+        "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1," + \
+        "stop: 0.0 rgb(35,35,35)" + \
+        "stop: 0.2 rgb(50,50,50)" + \
+        "stop: 0.7 rgb(50,50,50)," + \
+        "stop: 1.0 rgb(25,25,25));"
 
-        QPushButton = \
+        return MainWindow
+
+    elif ("button" == widget):
+
+        button = \
         "QPushButton {" + \
         "font-size: 16px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
         "background-color:rgb(50,50,50);" + \
         "border:3px solid transparent;" + \
-        "border-radius:10px;" + \
         "padding:5px;" + \
         "}" + \
-        "QPushButton::hover{" + \
+        "QPushButton::hover {" + \
         "background-color:rgb(60,60,60);" + \
         "}"
 
-        QLabel = \
-        "QLabel {" + \
+        return button
+
+    elif ("image" == widget):
+
+        DisplayImage = \
         "color:transparent;" + \
         "background-color:transparent;" + \
-        "border:0px;" + \
-        "}"
+        "border:0px;"
 
-        QLineEdit = \
-        "QLineEdit {" + \
+        return DisplayImage
+
+    elif ("counter"== widget):
+
+        ImageCounter = \
         "font-size: 15px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
-        "background-color:rgb(50,50,50);" + \
-        "border:0px;" + \
-        "margin:-10px;" + \
-        "padding:0px;" + \
-        "}"
+        "background-color:rgb(60,60,60);" + \
+        "border:1px solid transparent;" + \
+        "border-radius:10px;" + \
+        "margin:5;" + \
+        "padding:px;"
 
-        css = MainWindow + QPushButton + QLabel + QLineEdit
-
-        return css
+        return ImageCounter
 
     elif ("navBtn" == widget):
 
-        QPushButton = \
+        navBtn = \
         "QPushButton {" + \
         "font-size: 28px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
-        "background-color:rgb(50,50,50);" + \
+        "background-color:transparent;" + \
         "border:3px solid transparent;" + \
         "border-radius:10px;" + \
         "padding:25px;" + \
         "}" + \
-        "QPushButton::hover{" + \
-        "background-color:rgb(60,60,60);" + \
+        "QPushButton::hover {" + \
+        "background-color:rgb(50,50,50);" + \
         "}"
 
-        return QPushButton
+        return navBtn
 
     elif ("group" == widget):
 
-        QPushButton = \
+        group = \
         "QPushButton {" + \
         "font-size: 16px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
-        "background-color:rgb(50,50,50);" + \
+        "background-color:transparent;" + \
         "border:3px solid transparent;" + \
-        "border-radius:10px;" + \
         "padding:5px;" + \
         "}" + \
         "QPushButton::hover{" + \
-        "background-color:rgb(60,60,60);" + \
+        "background-color:rgb(50,50,50);" + \
         "}"
 
-        return QPushButton
-
+        return group
 
     elif ("groupActive" == widget):
 
-        QPushButton = \
+        groupActive = \
         "QPushButton {" + \
         "font-size: 16px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
         "background-color:rgb(50,50,50);" + \
         "border:3px solid transparent;" + \
         "border-bottom:3px solid white;" + \
-        "border-radius:0px;" + \
         "padding:5px;" + \
-        "}" + \
-        "QPushButton::hover{" + \
-        "background-color:rgb(60,60,60);" + \
+        "}" # + \
+        # "QPushButton::hover {" + \
+        # "background-color:rgb(60,60,60);" + \
+        # "}"
+
+        return groupActive
+    
+    elif ("preview" == widget):
+
+        PreviewPane = \
+        "QWidget {" + \
+        "border-radius:10px;" + \
+        "color:rgb(255,255,255);" + \
+        "background-color:transparent" + \
         "}"
 
-        return QPushButton
+        return PreviewPane
