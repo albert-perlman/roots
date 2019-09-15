@@ -66,11 +66,11 @@ class StyleSheet(object):
         "color:rgb(255,255,255);" + \
         "background-color:transparent;" + \
         "border:3px solid transparent;" + \
-        "border-radius:10px;" + \
+        "border-radius:15px;" + \
         "padding:25px;" + \
         "}" + \
         "QPushButton::hover {" + \
-        "background-color:rgb(50,50,50);" + \
+        "background-color:rgb(60,60,60);" + \
         "}"
 
         return navBtn
@@ -108,6 +108,23 @@ class StyleSheet(object):
 
         return groupActive
     
+    elif ("collapse" == widget):
+
+        collapseBtn = \
+        "QPushButton {" + \
+        "font-size: 16px; font-weight:bold;" + \
+        "color:rgb(255,255,255);" + \
+        "background-color:transparent;" + \
+        "border:3px solid transparent;" + \
+        "border-radius:15px;" + \
+        "padding:5px;" + \
+        "}" + \
+        "QPushButton::hover {" + \
+        "background-color:rgb(60,60,60);" + \
+        "}"
+
+        return collapseBtn
+
     elif ("preview" == widget):
 
         PreviewPane = \

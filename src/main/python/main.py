@@ -68,10 +68,19 @@ class MainWindow(QMainWindow):
     # PREVIEW PANE # --> goto createPreviewBtns()
     self.previewBtns = []
     self.minPreviewSize = 50
+    self.oldPreviewWidth = 50
+    self.oldPreviewHeight = 50
     self.navBtnWidth = 35
+    self.navBtnHeight = 115
     self.maxNumPreview = 13
-    # self.previewPane = QWidget()
-    # self.previewPane.setStyleSheet(StyleSheet.css("preview"))
+
+    # collapse #
+    self.collapseBtn = QPushButton("Collapse Preview")
+    self.collapseBtnWidth = 200
+    self.collapseBtn.setFixedWidth(self.collapseBtnWidth)
+    self.collapseBtn.setCheckable(True)
+    self.collapseBtn.setChecked(True)
+    self.collapseBtn.setStyleSheet(StyleSheet.css("collapse"))
 
     #############
     #  LAYOUTS  #
@@ -99,48 +108,48 @@ class MainWindow(QMainWindow):
     #
     #--------------------------------------------------#
 
-    MainVLayout   = QVBoxLayout()
-    MainHLayout   = QHBoxLayout()
-    TopHLayout    = QHBoxLayout()
-    BottomHLayout = QHBoxLayout()
-    LeftVLayout   = QVBoxLayout()
-    RightVLayout  = QVBoxLayout()
-
-    # Preview Pane # (use widget for styling)
-    self.PreviewLayout = QHBoxLayout()
-    # self.previewPane.setLayout(self.PreviewLayout)
-
-    # self.PreviewLayout.setSpacing(1)
-
     # Top Horizontal Layout #
+    TopHLayout = QHBoxLayout()
     for btn in self.groupBtns:
       TopHLayout.addWidget(btn)
 
-    # Horizontal Preview Layout #
-
-    # Left Vertical Layout #
-
-    # Right Vertical Layout #
-
     # Bottom Horizontal Layout #
-    BottomHLayout.addWidget(self.imageCounter)
+    BottomHLayout = QHBoxLayout()
+    BottomLeftLayout = QHBoxLayout()
+    BottomCenterLayout = QHBoxLayout()
+    BottomRightLayout = QHBoxLayout()
+    BottomRightLayout.setAlignment(Qt.AlignRight)
+    spacerL = QWidget()
+    spacerL.setStyleSheet("background-color:transparent;")
+    BottomLeftLayout.addWidget(spacerL)
+    BottomCenterLayout.addWidget(self.imageCounter)
+    BottomRightLayout.addWidget(self.collapseBtn)
+    BottomHLayout.addLayout(BottomLeftLayout)
+    BottomHLayout.addLayout(BottomCenterLayout)
+    BottomHLayout.addLayout(BottomRightLayout)
 
-    # image viewer layouts
-    viewerHLayout = QHBoxLayout()
-    viewerHLayout.addWidget(self.imageViewer)
-    viewerHLayout.addLayout(RightVLayout)
+    # Preview Layout #
+    self.PreviewLayout = QHBoxLayout()
+    # self.previewPane.setLayout(self.PreviewLayout)
 
+    # Image Viewer Layout #
     viewerVLayout = QVBoxLayout()
-    viewerVLayout.addLayout(viewerHLayout)
+    viewerVLayout.addWidget(self.imageViewer)
     viewerVLayout.addLayout(BottomHLayout)
+    viewerVLayout.addLayout(self.PreviewLayout)
 
     # Main Horizontal Layout #
-    MainHLayout.addLayout(LeftVLayout)
+    MainHLayout       = QHBoxLayout()
+    self.LeftVLayout  = QVBoxLayout()
+    self.RightVLayout = QVBoxLayout()
+    MainHLayout.addLayout(self.LeftVLayout)
     MainHLayout.addLayout(viewerVLayout)
+    MainHLayout.addLayout(self.RightVLayout)
+
+    # Main Vertical Layout
+    MainVLayout = QVBoxLayout()
     MainVLayout.addLayout(TopHLayout)
     MainVLayout.addLayout(MainHLayout)
-    MainVLayout.addLayout(self.PreviewLayout)
-    # MainVLayout.addWidget(self.previewPane)
 
     MainWidgetContainer.setLayout(MainVLayout)
     self.setCentralWidget(MainWidgetContainer)
@@ -149,6 +158,7 @@ class MainWindow(QMainWindow):
     #  SIGNAL / SLOTS  #
     ####################
     self.resized.connect(self.SLOT_resized)
+    self.collapseBtn.clicked.connect(self.SLOT_collapseBtnClicked)
 
     for btn in self.groupBtns:
       btn.clicked.connect(self.SLOT_viewGroup)
@@ -176,12 +186,17 @@ class MainWindow(QMainWindow):
     ####################
     #     START-UP     #
     ####################
-    self.initImages(imgPath)  # import resource images into gallery groups
-    self.updatePreviewPane()  # create Preview Pane
-    self.styleGroupBtns("All")
+    self.initImages(imgPath)        # import resource images into gallery groups
+    self.SLOT_collapseBtnClicked()  # create left / right navigation buttons
+    self.updatePreviewPane()        # create Preview Pane
+    self.styleGroupBtns("All")      # style group buttons
     self.updateTitle()
     self.show()
+
+    # clean up sizing after show
     self.displayImage()
+    self.collapseBtn.setChecked(False)
+    self.SLOT_collapseBtnClicked()
     self.showing = True
 
   # get image groups from directories in 'main/resources/base/images/'
@@ -235,7 +250,8 @@ class MainWindow(QMainWindow):
     self.scaleImage()
     self.imageViewer.setPixmap(self.galleryScaled[self.galleryIndex])
     self.updateImageCounter()
-    self.updatePreviewImages()
+    if (not self.collapseBtn.isChecked()):
+      self.updatePreviewImages()
     self.setFocus()
 
   # scale image to fit current window size
@@ -274,7 +290,7 @@ class MainWindow(QMainWindow):
     self.numPreview = len(self.gallery)-1
 
     # if gallery is too large to display in preview pane, find maximum images which can be displayed
-    while ( (self.numPreview*self.minPreviewSize) >= ( self.width()-(self.navBtnWidth*2)-(self.minPreviewSize*8) ) ):
+    while ( (self.numPreview*self.minPreviewSize) >= ( self.width()-(self.navBtnWidth*2)-(self.minPreviewSize*2) ) ):
       self.numPreview -=1
 
     # ensure odd number of images in preview pane
@@ -322,8 +338,10 @@ class MainWindow(QMainWindow):
       image = self.gallery[i]
       if (i == self.galleryIndex):
         image = image.scaled(self.previewBtns[idxCenter].size().width(), self.previewBtns[idxCenter].size().height(), Qt.KeepAspectRatio, Qt.FastTransformation)        
+        # image = image.scaled(self.oldPreviewWidth, self.oldPreviewHeight, Qt.KeepAspectRatio, Qt.FastTransformation)        
       else:        
         image = image.scaled(self.previewBtns[idxCenter].size().width()/2, self.previewBtns[idxCenter].size().height()/2, Qt.KeepAspectRatio, Qt.FastTransformation)
+        # image = image.scaled(self.oldPreviewWidth/2, self.oldPreviewHeight/2, Qt.KeepAspectRatio, Qt.FastTransformation)
       previewGallery.append(image)
 
     return previewGallery
@@ -335,22 +353,8 @@ class MainWindow(QMainWindow):
     # spacers #
     spacerL = QWidget()
     spacerR = QWidget()
-
-    # SELECTION ARROWS #
-    self.viewPrevBtn = QPushButton("<")
-    self.viewNextBtn = QPushButton(">")
-    self.viewPrevBtn.setStyleSheet(StyleSheet.css("navBtn"))
-    self.viewNextBtn.setStyleSheet(StyleSheet.css("navBtn"))
-    self.viewPrevBtn.setFixedWidth(self.navBtnWidth)
-    self.viewNextBtn.setFixedWidth(self.navBtnWidth)
-    self.viewPrevBtn.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Minimum)
-    self.viewNextBtn.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Minimum)
-    self.viewPrevBtn.clicked.connect(self.SLOT_viewPrev)
-    self.viewNextBtn.clicked.connect(self.SLOT_viewNext)
-    self.PreviewLayout.addWidget(self.viewPrevBtn)
-    self.PreviewLayout.addWidget(spacerL)
     
-    maxSize = self.width()//15
+    maxSize = self.width()//self.numPreview
 
     # PREVIEW IMAGES #
     self.previewBtns.clear()
@@ -375,8 +379,23 @@ class MainWindow(QMainWindow):
     self.previewBtns[self.numPreview//2].setMaximumSize(maxSize*2,maxSize*2)
     self.previewBtns[self.numPreview//2].setSizePolicy(previewSizePolicy)
 
-    self.PreviewLayout.addWidget(spacerR)
-    self.PreviewLayout.addWidget(self.viewNextBtn)
+  # create navigation buttons
+  def createNavBtns(self):
+    self.viewPrevBtn = QPushButton("<")
+    self.viewNextBtn = QPushButton(">")
+    self.viewPrevBtn.setStyleSheet(StyleSheet.css("navBtn"))
+    self.viewNextBtn.setStyleSheet(StyleSheet.css("navBtn"))
+    self.viewPrevBtn.clicked.connect(self.SLOT_viewPrev)
+    self.viewNextBtn.clicked.connect(self.SLOT_viewNext)
+
+    self.vspacerLT = QWidget()
+    self.vspacerLB = QWidget()
+    self.vspacerRT = QWidget()
+    self.vspacerRB = QWidget()
+    self.vspacerLT.setStyleSheet("background-color:transparent;")
+    self.vspacerLB.setStyleSheet("background-color:transparent;")
+    self.vspacerRT.setStyleSheet("background-color:transparent;")
+    self.vspacerRB.setStyleSheet("background-color:transparent;")
 
   # style groups buttons
   def styleGroupBtns(self, group):
@@ -428,10 +447,62 @@ class MainWindow(QMainWindow):
       self.galleryIndex = len(self.gallery)-1
     self.displayImage()
 
+  # SLOT: collapse button clicked
+  def SLOT_collapseBtnClicked(self):
+
+    self.clearLayout(self.LeftVLayout)
+    self.clearLayout(self.RightVLayout)
+
+    self.createNavBtns()
+
+    # Collapse Preview Pane
+    if (self.collapseBtn.isChecked()):
+      self.collapseBtn.setText("Expand Preview ▲")
+      self.vspacerLT.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+      self.vspacerLB.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+      self.vspacerRT.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+      self.vspacerRB.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+      self.viewPrevBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight*2)
+      self.viewNextBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight*2)
+      self.LeftVLayout.addWidget(self.viewPrevBtn)
+      self.LeftVLayout.addWidget(self.vspacerLT)
+      self.LeftVLayout.addWidget(self.viewPrevBtn)
+      self.LeftVLayout.addWidget(self.vspacerLB)
+      self.RightVLayout.addWidget(self.vspacerRT)
+      self.RightVLayout.addWidget(self.viewNextBtn)
+      self.RightVLayout.addWidget(self.vspacerRB)
+
+      if (self.showing):
+        self.oldPreviewWidth = self.previewBtns[self.numPreview//2].size().width()
+        self.oldPreviewHeight = self.previewBtns[self.numPreview//2].size().height()
+      self.clearLayout(self.PreviewLayout)
+
+    # Expand Preview Pane
+    else:
+      self.collapseBtn.setText("Collapse Preview ▼")
+      self.vspacerLT.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+      self.vspacerRT.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+      self.vspacerLB.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+      self.viewPrevBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight)
+      self.viewNextBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight)
+      self.vspacerLB.setMinimumSize(0,self.oldPreviewHeight//4)
+      self.LeftVLayout.addWidget(self.vspacerLT)
+      self.LeftVLayout.addWidget(self.viewPrevBtn)
+      self.LeftVLayout.addWidget(self.vspacerLB)
+      self.RightVLayout.addWidget(self.vspacerRT)
+      self.RightVLayout.addWidget(self.viewNextBtn)
+      self.RightVLayout.addWidget(self.vspacerRB)
+      self.updatePreviewPane()
+
+    self.displayImage()
+
   # SLOT: Main Window has been resized
   def SLOT_resized(self):
     if (self.showing):
-      self.updatePreviewPane()
+      self.SLOT_collapseBtnClicked()
+      if (not self.collapseBtn.isChecked()):
+        self.updatePreviewPane()
+      self.SLOT_collapseBtnClicked()
 
   # critical dialog pop-up
   def dialogCritical(self, s):
