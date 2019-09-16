@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
     self.maxHeight = self.screen.height()
 
     # Main Window sizing
-    self.setMinimumSize(self.maxWidth//1.75,self.maxHeight//1.75)
+    self.setMinimumSize(self.maxWidth//2.5,self.maxHeight//2.5)
     self.resize(self.maxWidth//1.5,self.maxHeight//1.5)
 
     # get gallery groups
@@ -114,14 +114,24 @@ class MainWindow(QMainWindow):
       TopHLayout.addWidget(btn)
 
     # Bottom Horizontal Layout #
-    BottomHLayout = QHBoxLayout()
-    BottomLeftLayout = QHBoxLayout()
-    BottomCenterLayout = QHBoxLayout()
-    BottomRightLayout = QHBoxLayout()
-    BottomRightLayout.setAlignment(Qt.AlignRight)
+    BottomHLayout       = QHBoxLayout()
+    BottomLeftLayout    = QHBoxLayout()
+    BottomCenterLayout  = QHBoxLayout()
+    BottomRightLayout   = QHBoxLayout()
+
+    # left spacer
     spacerL = QWidget()
     spacerL.setStyleSheet("background-color:transparent;")
+    spacerL.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Minimum)
     BottomLeftLayout.addWidget(spacerL)
+
+    # right spacper
+    spacerR = QWidget()
+    spacerR.setStyleSheet("background-color:transparent;")
+    spacerR.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Minimum)
+    BottomRightLayout.addWidget(spacerR)
+    BottomRightLayout.setAlignment(Qt.AlignRight)
+
     BottomCenterLayout.addWidget(self.imageCounter)
     BottomRightLayout.addWidget(self.collapseBtn)
     BottomHLayout.addLayout(BottomLeftLayout)
@@ -499,7 +509,7 @@ class MainWindow(QMainWindow):
   # SLOT: Main Window has been resized
   def SLOT_resized(self):
     if (self.showing):
-      self.SLOT_collapseBtnClicked()
+      self.minPreviewSize = self.width()/self.numPreview//1.5
       if (not self.collapseBtn.isChecked()):
         self.updatePreviewPane()
       self.SLOT_collapseBtnClicked()

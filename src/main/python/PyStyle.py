@@ -101,10 +101,7 @@ class StyleSheet(object):
         "border:3px solid transparent;" + \
         "border-bottom:3px solid white;" + \
         "padding:5px;" + \
-        "}" # + \
-        # "QPushButton::hover {" + \
-        # "background-color:rgb(60,60,60);" + \
-        # "}"
+        "}"
 
         return groupActive
     
@@ -112,7 +109,7 @@ class StyleSheet(object):
 
         collapseBtn = \
         "QPushButton {" + \
-        "font-size: 16px; font-weight:bold;" + \
+        "font-size: 15px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
         "background-color:transparent;" + \
         "border:3px solid transparent;" + \
@@ -131,7 +128,7 @@ class StyleSheet(object):
         "QWidget {" + \
         "border-radius:10px;" + \
         "color:rgb(255,255,255);" + \
-        "background-color:transparent" + \
+        "background-color:transparent;" + \
         "}"
 
         return PreviewPane
