@@ -237,7 +237,7 @@ class MainWindow(QMainWindow):
     shuffle(tmp)
     self.galleryGroups[0][1:] = tmp
 
-  # sort image into a gallery group (based on containin directory name)
+  # sort image into a gallery group (based on parent directory name)
   def sortImage(self,dir,image):
 
     groupName = dir[dir.rfind('/')+1:] # strip path down to last directory name
@@ -358,12 +358,10 @@ class MainWindow(QMainWindow):
 
   # create preview pane buttons
   def createPreviewBtns(self):
-    self.clearLayout(self.PreviewLayout)
 
-    # spacers #
-    spacerL = QWidget()
-    spacerR = QWidget()
-    
+    self.clearLayout(self.PreviewLayout)
+    self.PreviewLayout.addWidget(self.viewPrevBtn)
+
     maxSize = self.width()//self.numPreview
 
     # PREVIEW IMAGES #
@@ -389,23 +387,18 @@ class MainWindow(QMainWindow):
     self.previewBtns[self.numPreview//2].setMaximumSize(maxSize*2,maxSize*2)
     self.previewBtns[self.numPreview//2].setSizePolicy(previewSizePolicy)
 
+    self.PreviewLayout.addWidget(self.viewNextBtn)
+
   # create navigation buttons
   def createNavBtns(self):
     self.viewPrevBtn = QPushButton("<")
     self.viewNextBtn = QPushButton(">")
     self.viewPrevBtn.setStyleSheet(StyleSheet.css("navBtn"))
     self.viewNextBtn.setStyleSheet(StyleSheet.css("navBtn"))
+    self.viewPrevBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight)
+    self.viewNextBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight)
     self.viewPrevBtn.clicked.connect(self.SLOT_viewPrev)
     self.viewNextBtn.clicked.connect(self.SLOT_viewNext)
-
-    self.vspacerLT = QWidget()
-    self.vspacerLB = QWidget()
-    self.vspacerRT = QWidget()
-    self.vspacerRB = QWidget()
-    self.vspacerLT.setStyleSheet("background-color:transparent;")
-    self.vspacerLB.setStyleSheet("background-color:transparent;")
-    self.vspacerRT.setStyleSheet("background-color:transparent;")
-    self.vspacerRB.setStyleSheet("background-color:transparent;")
 
   # style groups buttons
   def styleGroupBtns(self, group):
@@ -468,40 +461,18 @@ class MainWindow(QMainWindow):
     # Collapse Preview Pane
     if (self.collapseBtn.isChecked()):
       self.collapseBtn.setText("Expand Preview ▲")
-      self.vspacerLT.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-      self.vspacerLB.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-      self.vspacerRT.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-      self.vspacerRB.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
       self.viewPrevBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight*2)
       self.viewNextBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight*2)
       self.LeftVLayout.addWidget(self.viewPrevBtn)
-      self.LeftVLayout.addWidget(self.vspacerLT)
-      self.LeftVLayout.addWidget(self.viewPrevBtn)
-      self.LeftVLayout.addWidget(self.vspacerLB)
-      self.RightVLayout.addWidget(self.vspacerRT)
       self.RightVLayout.addWidget(self.viewNextBtn)
-      self.RightVLayout.addWidget(self.vspacerRB)
+      self.RightVLayout.setAlignment(Qt.AlignCenter)
+      self.LeftVLayout.setAlignment(Qt.AlignCenter)
 
-      if (self.showing):
-        self.oldPreviewWidth = self.previewBtns[self.numPreview//2].size().width()
-        self.oldPreviewHeight = self.previewBtns[self.numPreview//2].size().height()
       self.clearLayout(self.PreviewLayout)
 
     # Expand Preview Pane
     else:
       self.collapseBtn.setText("Collapse Preview ▼")
-      self.vspacerLT.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-      self.vspacerRT.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-      self.vspacerLB.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-      self.viewPrevBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight)
-      self.viewNextBtn.setFixedSize(self.navBtnWidth, self.navBtnHeight)
-      self.vspacerLB.setMinimumSize(0,self.oldPreviewHeight//4)
-      self.LeftVLayout.addWidget(self.vspacerLT)
-      self.LeftVLayout.addWidget(self.viewPrevBtn)
-      self.LeftVLayout.addWidget(self.vspacerLB)
-      self.RightVLayout.addWidget(self.vspacerRT)
-      self.RightVLayout.addWidget(self.viewNextBtn)
-      self.RightVLayout.addWidget(self.vspacerRB)
       self.updatePreviewPane()
 
     self.displayImage()

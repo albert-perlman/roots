@@ -50,7 +50,7 @@ class StyleSheet(object):
         ImageCounter = \
         "font-size: 15px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
-        "background-color:rgb(60,60,60);" + \
+        "background-color:rgb(65,65,65);" + \
         "border:1px solid transparent;" + \
         "border-radius:10px;" + \
         "margin:5;" + \
