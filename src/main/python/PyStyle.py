@@ -50,7 +50,7 @@ class StyleSheet(object):
         ImageCounter = \
         "font-size: 15px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
-        "background-color:rgb(60,60,60);" + \
+        "background-color:rgb(65,65,65);" + \
         "border:1px solid transparent;" + \
         "border-radius:10px;" + \
         "margin:5;" + \
@@ -66,11 +66,11 @@ class StyleSheet(object):
         "color:rgb(255,255,255);" + \
         "background-color:transparent;" + \
         "border:3px solid transparent;" + \
-        "border-radius:10px;" + \
+        "border-radius:15px;" + \
         "padding:25px;" + \
         "}" + \
         "QPushButton::hover {" + \
-        "background-color:rgb(50,50,50);" + \
+        "background-color:rgb(60,60,60);" + \
         "}"
 
         return navBtn
@@ -101,20 +101,34 @@ class StyleSheet(object):
         "border:3px solid transparent;" + \
         "border-bottom:3px solid white;" + \
         "padding:5px;" + \
-        "}" # + \
-        # "QPushButton::hover {" + \
-        # "background-color:rgb(60,60,60);" + \
-        # "}"
+        "}"
 
         return groupActive
     
+    elif ("collapse" == widget):
+
+        collapseBtn = \
+        "QPushButton {" + \
+        "font-size: 15px; font-weight:bold;" + \
+        "color:rgb(255,255,255);" + \
+        "background-color:transparent;" + \
+        "border:3px solid transparent;" + \
+        "border-radius:15px;" + \
+        "padding:5px;" + \
+        "}" + \
+        "QPushButton::hover {" + \
+        "background-color:rgb(60,60,60);" + \
+        "}"
+
+        return collapseBtn
+
     elif ("preview" == widget):
 
         PreviewPane = \
         "QWidget {" + \
         "border-radius:10px;" + \
         "color:rgb(255,255,255);" + \
-        "background-color:transparent" + \
+        "background-color:transparent;" + \
         "}"
 
         return PreviewPane
