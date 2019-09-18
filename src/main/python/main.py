@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
 
     # Main Window sizing
     self.setMinimumSize(self.maxWidth//2.5,self.maxHeight//2.5)
-    self.resize(self.maxWidth//1.5,self.maxHeight//1.5)
+    self.resize(self.maxWidth//2,self.maxHeight//2)
 
     # get gallery groups
     imgPath = self.appctxt.get_resource('images/')
@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
     self.imageCounter = QLineEdit()
     self.imageCounter.setStyleSheet(StyleSheet.css("counter"))
     self.imageCounter.setReadOnly(True)
-    self.imageCounter.setFixedSize(125,40)
+    self.imageCounter.setFixedSize(135,40)
     self.imageCounter.setAlignment(Qt.AlignCenter)
 
     # GROUP BUTTONS #
@@ -68,8 +68,7 @@ class MainWindow(QMainWindow):
     # PREVIEW PANE # --> goto createPreviewBtns()
     self.previewBtns = []
     self.minPreviewSize = 50
-    self.oldPreviewWidth = 50
-    self.oldPreviewHeight = 50
+    self.maxPreviewSize = 50
     self.navBtnWidth = 35
     self.navBtnHeight = 115
     self.maxNumPreview = 13
@@ -79,7 +78,7 @@ class MainWindow(QMainWindow):
     self.collapseBtnWidth = 200
     self.collapseBtn.setFixedWidth(self.collapseBtnWidth)
     self.collapseBtn.setCheckable(True)
-    self.collapseBtn.setChecked(True)
+    self.collapseBtn.setChecked(False)
     self.collapseBtn.setStyleSheet(StyleSheet.css("collapse"))
 
     #############
@@ -204,10 +203,8 @@ class MainWindow(QMainWindow):
     self.show()
 
     # clean up sizing after show
-    self.displayImage()
-    self.collapseBtn.setChecked(False)
-    self.SLOT_collapseBtnClicked()
     self.showing = True
+    self.SLOT_resized()
 
   # get image groups from directories in 'main/resources/base/images/'
   def getGalleryGroups(self, path):
@@ -280,8 +277,6 @@ class MainWindow(QMainWindow):
       imgWidth = viewWidth 
     if (imgHeight != viewHeight):
       imgHeight = viewHeight
-      
-    self.imageViewer.resize(viewWidth,viewHeight)
 
     pixmap = self.gallery[self.galleryIndex]
     image = pixmap.scaled(imgWidth, imgHeight, Qt.KeepAspectRatio, Qt.FastTransformation)
@@ -362,8 +357,6 @@ class MainWindow(QMainWindow):
     self.clearLayout(self.PreviewLayout)
     self.PreviewLayout.addWidget(self.viewPrevBtn)
 
-    maxSize = self.width()//self.numPreview
-
     # PREVIEW IMAGES #
     self.previewBtns.clear()
     previewSizePolicy = QSizePolicy()
@@ -374,7 +367,7 @@ class MainWindow(QMainWindow):
     for i in range(0,self.numPreview):
       self.previewBtns.append(QToolButton())
       self.previewBtns[i].setMinimumSize(self.minPreviewSize,self.minPreviewSize)
-      self.previewBtns[i].setMaximumSize(maxSize,maxSize)
+      self.previewBtns[i].setMaximumSize(self.maxPreviewSize,self.maxPreviewSize)
       self.previewBtns[i].setSizePolicy(previewSizePolicy)
       self.previewBtns[i].setStyleSheet("color:transparent; background-color:transparent; border:0px;")
       self.previewBtns[i].clicked.connect(self.SLOT_previewClicked)
@@ -384,7 +377,7 @@ class MainWindow(QMainWindow):
     previewSizePolicy.setHorizontalStretch(2)
     previewSizePolicy.setVerticalStretch(2)
     self.previewBtns[self.numPreview//2].setMinimumSize(self.minPreviewSize*2,self.minPreviewSize*2)
-    self.previewBtns[self.numPreview//2].setMaximumSize(maxSize*2,maxSize*2)
+    self.previewBtns[self.numPreview//2].setMaximumSize(self.maxPreviewSize*2,self.maxPreviewSize*2)
     self.previewBtns[self.numPreview//2].setSizePolicy(previewSizePolicy)
 
     self.PreviewLayout.addWidget(self.viewNextBtn)
@@ -480,7 +473,8 @@ class MainWindow(QMainWindow):
   # SLOT: Main Window has been resized
   def SLOT_resized(self):
     if (self.showing):
-      self.minPreviewSize = self.width()/self.numPreview//1.5
+      self.minPreviewSize = self.width()//self.numPreview//1.5
+      self.maxPreviewSize = self.width()//self.numPreview//1.5
       if (not self.collapseBtn.isChecked()):
         self.updatePreviewPane()
       self.SLOT_collapseBtnClicked()
