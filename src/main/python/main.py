@@ -497,16 +497,42 @@ class MainWindow(QMainWindow):
   def updateTitle(self, str=""):
     self.setWindowTitle("Perlman Family Photo Album"+ str)
 
-  # capture arrow key press to navigate gallery
+  # map key press events to gallery navigation
   def keyPressEvent(self, event):
 
     keyCode = event.key()
 
+    # map left / right arrow keys to navigation buttons
     if (16777234 == keyCode):
       self.SLOT_viewPrev()
-
     elif (16777236 == keyCode):
       self.SLOT_viewNext()
+
+    try: # map 0-9 key press to group selection 
+      if (49 == keyCode):
+        self.groupBtns[0].animateClick()
+      elif (50 == keyCode):
+        self.groupBtns[1].animateClick()
+      elif (51 == keyCode):
+        self.groupBtns[2].animateClick()
+      elif (52 == keyCode):
+        self.groupBtns[3].animateClick()
+      elif (53 == keyCode):
+        self.groupBtns[4].animateClick()
+      elif (54 == keyCode):
+        self.groupBtns[5].animateClick()
+      elif (55 == keyCode):
+        self.groupBtns[6].animateClick()
+      elif (56 == keyCode):
+        self.groupBtns[7].animateClick()
+      elif (57 == keyCode):
+        self.groupBtns[8].animateClick()
+      elif (58 == keyCode):
+        self.groupBtns[9].animateClick()
+      elif (48 == keyCode):
+        self.groupBtns[10].animateClick()
+    except:
+      pass                                       
 
   # overload Main Window resizeEvent to emit signal
   def resizeEvent(self, event):
