@@ -302,6 +302,7 @@ class MainWindow(QMainWindow):
     if (self.numPreview % 2 == 0):
       self.numPreview +=1
 
+    # limit number of previews to max value
     if (self.numPreview > self.maxNumPreview):
       self.numPreview = self.maxNumPreview
 
@@ -419,7 +420,7 @@ class MainWindow(QMainWindow):
       self.galleryIndex = 1
       self.displayImage()
 
-  # SLOT: view gallery group All
+  # SLOT: view gallery group
   def SLOT_viewGroup(self):
     
     groupName = self.sender().text()
@@ -468,6 +469,7 @@ class MainWindow(QMainWindow):
       self.collapseBtn.setText("Collapse Preview ▼")
       self.updatePreviewPane()
 
+    QApplication.processEvents() # ensure GUI is fully updated
     self.displayImage()
 
   # SLOT: Main Window has been resized
@@ -475,9 +477,12 @@ class MainWindow(QMainWindow):
     if (self.showing):
       self.minPreviewSize = self.width()//self.numPreview//1.5
       self.maxPreviewSize = self.width()//self.numPreview//1.5
-      if (not self.collapseBtn.isChecked()):
+
+      if (self.collapseBtn.isChecked()):
+        self.displayImage()
+      else :
+        self.createNavBtns()
         self.updatePreviewPane()
-      self.SLOT_collapseBtnClicked()
 
   # critical dialog pop-up
   def dialogCritical(self, s):
