@@ -288,15 +288,15 @@ class MainWindow(QMainWindow):
     max = str( len(self.gallery)-1 )
     self.imageCounter.setText(idx + ' / ' + max)
 
-  # update preview pane size and images
-  def updatePreviewPane(self):
+  # update number of preview images to display
+  def updateNumPreview(self):
 
     # display as many previews as there are images in gallery
     self.numPreview = len(self.gallery)-1
 
-    # if gallery is too large to display in preview pane, find maximum images which can be displayed
-    while ( (self.numPreview*self.minPreviewSize) >= ( self.width()-(self.navBtnWidth*2)-(self.minPreviewSize*2) ) ):
-      self.numPreview -=1
+    # # if gallery is too large to display in preview pane, find maximum images which can be displayed
+    # while ( (self.numPreview*self.minPreviewSize) >= ( self.width()-(self.navBtnWidth*2)-(self.minPreviewSize*2) ) ):
+    #   self.numPreview -=1
 
     # ensure odd number of images in preview pane
     if (self.numPreview % 2 == 0):
@@ -306,6 +306,9 @@ class MainWindow(QMainWindow):
     if (self.numPreview > self.maxNumPreview):
       self.numPreview = self.maxNumPreview
 
+  # update preview pane size and images
+  def updatePreviewPane(self):
+    self.updateNumPreview()
     self.createPreviewBtns()
     self.displayImage()
 
@@ -435,6 +438,7 @@ class MainWindow(QMainWindow):
   def SLOT_viewGroup(self):
     
     groupName = self.sender().text()
+    self.styleGroupBtns(groupName)
     self.galleryIndex = 1
     
     i = 0 # change display gallery
@@ -444,8 +448,12 @@ class MainWindow(QMainWindow):
         self.galleryScaled = self.galleryGroupsScaled[i]
       i +=1
 
-    self.styleGroupBtns(groupName)
-    self.displayImage()
+    # update preview pane if showing
+    if (self.collapseBtn.isChecked()):
+      self.displayImage()
+    else :
+      self.createNavBtns()
+      self.updatePreviewPane()
 
   # SLOT: display image selected from preview
   def SLOT_previewClicked(self):
@@ -488,6 +496,11 @@ class MainWindow(QMainWindow):
     if (self.showing):
       self.minPreviewSize = self.width()//self.numPreview//1.5
       self.maxPreviewSize = self.width()//self.numPreview//1.2
+
+      # TODO: limit preview size on large screens and increase max number of previews
+      if (self.minPreviewSize > 100):
+        self.minPreviewSize = 100
+        self.maxPreviewSize = 100
 
       if (self.collapseBtn.isChecked()):
         self.displayImage()
