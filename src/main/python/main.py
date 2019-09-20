@@ -355,7 +355,17 @@ class MainWindow(QMainWindow):
   # create preview pane buttons
   def createPreviewBtns(self):
 
+    # spacers
+    spacerL = QWidget()
+    spacerR = QWidget()
+    spacerL.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+    spacerR.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+    spacerL.setStyleSheet("color:transparent; background-color:transparent;")
+    spacerR.setStyleSheet("color:transparent; background-color:transparent;")
+
+    # clear preview layout and add widgets
     self.clearLayout(self.PreviewLayout)
+    self.PreviewLayout.addWidget(spacerL)
     self.PreviewLayout.addWidget(self.viewPrevBtn)
 
     # PREVIEW IMAGES #
@@ -382,6 +392,7 @@ class MainWindow(QMainWindow):
     self.previewBtns[self.numPreview//2].setSizePolicy(previewSizePolicy)
 
     self.PreviewLayout.addWidget(self.viewNextBtn)
+    self.PreviewLayout.addWidget(spacerR)
 
   # create navigation buttons
   def createNavBtns(self):
@@ -476,7 +487,7 @@ class MainWindow(QMainWindow):
   def SLOT_resized(self):
     if (self.showing):
       self.minPreviewSize = self.width()//self.numPreview//1.5
-      self.maxPreviewSize = self.width()//self.numPreview//1.5
+      self.maxPreviewSize = self.width()//self.numPreview//1.2
 
       if (self.collapseBtn.isChecked()):
         self.displayImage()
