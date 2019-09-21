@@ -22,8 +22,11 @@ class MainWindow(QMainWindow):
     self.showing = False
     self.appctxt = ApplicationContext()
 
+    # Main Widget Container
     MainWidgetContainer = QWidget()
+    QFontDatabase.addApplicationFont(self.appctxt.get_resource('fonts/Cantarell-Regular.ttf'))
     MainWidgetContainer.setStyleSheet(StyleSheet.css("window"))
+    self.setCentralWidget(MainWidgetContainer)
 
     # get user's screen dimensions
     self.screen = QDesktopWidget().screenGeometry()
@@ -160,9 +163,7 @@ class MainWindow(QMainWindow):
     MainVLayout = QVBoxLayout()
     MainVLayout.addLayout(TopHLayout)
     MainVLayout.addLayout(MainHLayout)
-
     MainWidgetContainer.setLayout(MainVLayout)
-    self.setCentralWidget(MainWidgetContainer)
 
     ####################
     #  SIGNAL / SLOTS  #
