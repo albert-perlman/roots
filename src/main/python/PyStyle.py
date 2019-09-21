@@ -10,13 +10,16 @@ class StyleSheet(object):
     if ("window" == widget):
 
         MainWindow = \
+        "QWidget {" + \
+        "font-family:Cantarell;" + \
         "color:rgb(255,255,255);" + \
         "background-color:" + \
         "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1," + \
         "stop: 0.0 rgb(35,35,35)" + \
         "stop: 0.2 rgb(50,50,50)" + \
         "stop: 0.7 rgb(50,50,50)," + \
-        "stop: 1.0 rgb(25,25,25));"
+        "stop: 1.0 rgb(25,25,25));" + \
+        "}"
 
         return MainWindow
 
@@ -48,6 +51,7 @@ class StyleSheet(object):
     elif ("counter"== widget):
 
         ImageCounter = \
+        "font-family:Cantarell;" + \
         "font-size: 15px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
         "background-color:rgb(65,65,65);" + \
@@ -62,6 +66,7 @@ class StyleSheet(object):
 
         navBtn = \
         "QPushButton {" + \
+        "font-family:Cantarell;" + \
         "font-size: 28px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
         "background-color:transparent;" + \
@@ -79,6 +84,7 @@ class StyleSheet(object):
 
         group = \
         "QPushButton {" + \
+        "font-family:Cantarell;" + \
         "font-size: 16px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
         "background-color:transparent;" + \
@@ -95,6 +101,7 @@ class StyleSheet(object):
 
         groupActive = \
         "QPushButton {" + \
+        "font-family:Cantarell;" + \
         "font-size: 16px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
         "background-color:rgb(50,50,50);" + \
@@ -109,6 +116,7 @@ class StyleSheet(object):
 
         collapseBtn = \
         "QPushButton {" + \
+        "font-family:Cantarell;" + \
         "font-size: 15px; font-weight:bold;" + \
         "color:rgb(255,255,255);" + \
         "background-color:transparent;" + \
