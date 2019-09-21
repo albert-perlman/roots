@@ -71,7 +71,8 @@ class MainWindow(QMainWindow):
     self.maxPreviewSize = 50
     self.navBtnWidth = 35
     self.navBtnHeight = 115
-    self.maxNumPreview = 13
+    self.maxNumPreviewDefault = 13
+    self.maxNumPreview = self.maxNumPreviewDefault
 
     # collapse #
     self.collapseBtn = QPushButton("Collapse Preview")
@@ -494,14 +495,22 @@ class MainWindow(QMainWindow):
   # SLOT: Main Window has been resized
   def SLOT_resized(self):
     if (self.showing):
+      self.numPreview = self.maxNumPreviewDefault
+      self.maxNumPreview = self.maxNumPreviewDefault
       self.minPreviewSize = self.width()//self.numPreview//1.5
       self.maxPreviewSize = self.width()//self.numPreview//1.2
 
-      # TODO: limit preview size on large screens and increase max number of previews
+      # limit preview size on large screens and increase max number of previews
       if (self.minPreviewSize > 100):
+        self.maxNumPreview = int(self.minPreviewSize/6)-1
         self.minPreviewSize = 100
         self.maxPreviewSize = 100
 
+        # ensure odd number of previews
+        if (self.maxNumPreview % 2 == 0):
+          self.maxNumPreview +=1
+
+      # update display
       if (self.collapseBtn.isChecked()):
         self.displayImage()
       else :
