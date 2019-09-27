@@ -450,12 +450,15 @@ class MainWindow(QMainWindow):
         self.galleryScaled = self.galleryGroupsScaled[i]
       i +=1
 
-    # update preview pane if showing
-    if (self.collapseBtn.isChecked()):
-      self.displayImage()
-    else :
-      self.createNavBtns()
-      self.updatePreviewPane()
+    # TODO
+    self.SLOT_collapseBtnClicked() # lazy fix for preview sizing slightly under-sized at "first view" when changing gallery groups
+
+    # # update preview pane if showing
+    # if (self.collapseBtn.isChecked()):
+    #   self.displayImage()
+    # else :
+    #   self.createNavBtns()
+    #   self.updatePreviewPane()
 
   # SLOT: display image selected from preview
   def SLOT_previewClicked(self):
